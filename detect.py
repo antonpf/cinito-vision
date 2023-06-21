@@ -18,6 +18,8 @@ import os
 import sys
 import time
 
+import paho.mqtt.client as mqtt
+
 import pygame
 import pygame.camera
 from pygame.locals import *
@@ -29,6 +31,11 @@ from pycoral.utils.edgetpu import make_interpreter
 from pycoral.utils.edgetpu import run_inference
 
 def main():
+    TOPIC = 'becherlager_test'
+    BROKER_ADRESS = '172.19.12.128'
+    PORT = 1883
+    QOS = 1
+
     cam_w, cam_h = 640, 480
     default_model_dir = 'models'
     default_model = 'cinito_vision_edgetpu.tflite'
@@ -38,9 +45,9 @@ def main():
                         default=os.path.join(default_model_dir,default_model))
     parser.add_argument('--labels', help='label file path',
                         default=os.path.join(default_model_dir, default_labels))
-    parser.add_argument('--top_k', type=int, default=5,
+    parser.add_argument('--top_k', type=int, default=20,
                         help='number of categories with highest score to display')
-    parser.add_argument('--threshold', type=float, default=0.5,
+    parser.add_argument('--threshold', type=float, default=0.55,
                         help='classifier score threshold')
     args = parser.parse_args()
 
@@ -53,6 +60,14 @@ def main():
     interpreter = make_interpreter(args.model)
     interpreter.allocate_tensors()
     labels = read_label_file(args.labels)
+
+    try: 
+        client = mqtt.Client()
+        client.connect(BROKER_ADRESS,PORT)
+        print('Connected to MQTT Broker: ', BROKER_ADRESS)
+    except SystemError as e:
+        print('Cant connect to MQTT Broker: ', BROKER_ADRESS)
+
 
     pygame.init()
     pygame.font.init()
