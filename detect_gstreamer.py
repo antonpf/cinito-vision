@@ -97,66 +97,6 @@ def check_cup_bbox(cup_bbox, basket):
 
     return positions
 
-def get_reference_positions(args):
-    try:
-        print("Loading reference positions {}".format(FILE_PATH))
-        f = open(FILE_PATH)
-        data = json.load(f)
-        cup_reference_list = json.loads(data)
-        cup_bbox = []
-        for cup_reference in cup_reference_list:
-            if cup_reference[0] == 1:
-                cup_bbox.append(cup_reference[2])
-
-        cup_bbox = sorted_bbox(cup_bbox)
-        return cup_bbox, False
-
-
-    except FileNotFoundError:
-        print("File not found. A new reference file will be created.")
-        return None, True
-
-# Callback functions for connection and message events
-def on_connect(client, userdata, flags, rc):
-    if rc == 0:
-        print("Connected to MQTT broker")
-    else:
-        print("Connection failed")
-
-
-def on_disconnect(client, userdata, rc):
-    if rc != 0:
-        print("Unexpected disconnection from MQTT broker")
-        client.publish(TOPIC, "Connection broken")
-        while not client.is_connected():
-            try:
-                client.reconnect()
-            except:
-                print("Error when reconnecting. Next attempt in 5 seconds...")
-                time.sleep(5)
-
-def get_next_cup(objs, cup_bbox):
-        cups = []
-        for cup in objs:
-            if cup[0] == 1:
-                cups.append(cup[2])
-
-        cup_list = []
-        if len(cups) > 0:
-            for cup in cups:
-                cup_list.append(list(cup))
-            cup_list = sorted_bbox(cup_list)
-
-            pos_list = []
-            for cup in cup_list:
-                pos = centerIsInside(cup, cup_bbox)
-                pos_list.append(pos)
-            positive_values = [x for x in pos_list if x >= 0]
-            if len(positive_values) > 0:
-                minimum_positive = min(positive_values)
-        else:
-            minimum_positive = -1
-        return minimum_positive
 
 def main():
     parser = argparse.ArgumentParser()
@@ -239,7 +179,26 @@ def main():
         # Get detected cups
         print("Number of detected Objects:", len(objs))
 
-        minimum_positive = get_next_cup(objs, cup_bbox)
+        cups = []
+        for cup in objs:
+            if cup[0] == 1:
+                cups.append(cup[2])
+
+        cup_list = []
+        if len(cups) > 0:
+            for cup in cups:
+                cup_list.append(list(cup))
+            cup_list = sorted_bbox(cup_list)
+
+            pos_list = []
+            for cup in cup_list:
+                pos = centerIsInside(cup, cup_bbox)
+                pos_list.append(pos)
+            positive_values = [x for x in pos_list if x >= 0]
+            if len(positive_values) > 0:
+                minimum_positive = min(positive_values)
+        else:
+            minimum_positive = -1
 
         DATA = struct.pack("i", minimum_positive)
         DATA = bytearray(DATA)
@@ -259,6 +218,44 @@ def main():
         headless=True,
     )
     client.loop_stop()
+
+def get_reference_positions(args):
+    try:
+        print("Loading reference positions {}".format(FILE_PATH))
+        f = open(FILE_PATH)
+        data = json.load(f)
+        cup_reference_list = json.loads(data)
+        cup_bbox = []
+        for cup_reference in cup_reference_list:
+            if cup_reference[0] == 1:
+                cup_bbox.append(cup_reference[2])
+
+        cup_bbox = sorted_bbox(cup_bbox)
+        return cup_bbox, False
+
+
+    except FileNotFoundError:
+        print("File not found. A new reference file will be created.")
+        return None, True
+
+# Callback functions for connection and message events
+def on_connect(client, userdata, flags, rc):
+    if rc == 0:
+        print("Connected to MQTT broker")
+    else:
+        print("Connection failed")
+
+
+def on_disconnect(client, userdata, rc):
+    if rc != 0:
+        print("Unexpected disconnection from MQTT broker")
+        client.publish(TOPIC, "Connection broken")
+        while not client.is_connected():
+            try:
+                client.reconnect()
+            except:
+                print("Error when reconnecting. Next attempt in 5 seconds...")
+                time.sleep(5)
 
 if __name__ == "__main__":
     main()
