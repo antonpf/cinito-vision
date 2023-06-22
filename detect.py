@@ -18,8 +18,8 @@ from pycoral.utils.edgetpu import make_interpreter
 from pycoral.utils.edgetpu import run_inference
 
 TOPIC = "becherlager_test"
-TOPIC_INT = 'cupholder'
-TOPIC_COUNT = 'cupholder_count'
+TOPIC_INT = "cupholder"
+TOPIC_COUNT = "cupholder_count"
 BROKER_ADRESS = "172.19.12.128"
 PORT = 1883
 QOS = 1
@@ -28,6 +28,7 @@ DEFAULT_MODEL_DIR = "models"
 DEFAULT_MODEL = "cinito_vision_edgetpu.tflite"
 DEFAULT_LABELS = "cinito_labels.txt"
 FILE_PATH = "/home/mendel/cinito_vision/resources/cup_positions.json"
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -68,33 +69,21 @@ def main():
     client.connect(BROKER_ADRESS, PORT)
     client.loop_start()
     detect_cups(args, client)
-    client.loop_stop() 
+    client.loop_stop()
+
 
 def detect_cups(args, client):
-    try:
-        with open(FILE_PATH) as file:
-            cup_reference_positions = json.load(file)
-            cup_reference = []
-            for cup_reference_position in cup_reference_positions:
-                if cup_reference_position[0] == 1:
-                    cup_reference.append(cup_reference_position[2])
-
-            cup_reference = sorted_bbox(cup_reference)
-
-
-    except FileNotFoundError:
-        print("File not found. A new reference file will be created.")
-        args.init = True
-
     pygame.init()
     pygame.font.init()
     font = pygame.font.SysFont("Arial", 20)
 
     pygame.camera.init()
     camlist = pygame.camera.list_cameras()
-    
+
+    cup_reference, args.init = get_reference_positions(args)
+
     labels, interpreter = get_model(args)
-    
+
     inference_size = input_size(interpreter)
 
     camera = get_camera(CAM_W, CAM_H, camlist)
@@ -107,40 +96,61 @@ def detect_cups(args, client):
     try:
         last_time = time.monotonic()
         while True:
-                mysurface = camera.get_image()
-                imagen = pygame.transform.scale(mysurface, inference_size)
-                start_time = time.monotonic()
-                run_inference(interpreter, imagen.get_buffer().raw)
-                results = get_objects(interpreter, args.threshold)[: args.top_k]
-                stop_time = time.monotonic()
-                inference_ms = (stop_time - start_time) * 1000.0
-                fps_ms = 1.0 / (stop_time - last_time)
-                last_time = stop_time
-                annotate_text = "Inference: {:5.2f}ms FPS: {:3.1f}".format(inference_ms, fps_ms)
-                if args.init == True:
-                    print("Create new file ...")
-                    print("Save init file ...")
-                    args.init = False
-                client.publish(TOPIC_COUNT,len(results),qos=QOS)
-                draw_bbox(font, labels, red, scale_x, scale_y, mysurface, results)
-                text = font.render(annotate_text, True, red)
-                # print(annotate_text)
-                mysurface.blit(text, (0, 0))
-                display.blit(mysurface, (0, 0))
-                pygame.display.flip()
+            mysurface = camera.get_image()
+            imagen = pygame.transform.scale(mysurface, inference_size)
+            start_time = time.monotonic()
+            run_inference(interpreter, imagen.get_buffer().raw)
+            results = get_objects(interpreter, args.threshold)[: args.top_k]
+            stop_time = time.monotonic()
+            inference_ms = (stop_time - start_time) * 1000.0
+            fps_ms = 1.0 / (stop_time - last_time)
+            last_time = stop_time
+            annotate_text = "Inference: {:5.2f}ms FPS: {:3.1f}".format(
+                inference_ms, fps_ms
+            )
+            if args.init == True:
+                print("Create new file ...")
+                print("Save init file ...")
+                args.init = False
+            client.publish(TOPIC_COUNT, len(results), qos=QOS)
+            draw_bbox(font, labels, red, scale_x, scale_y, mysurface, results)
+            text = font.render(annotate_text, True, red)
+            # print(annotate_text)
+            mysurface.blit(text, (0, 0))
+            display.blit(mysurface, (0, 0))
+            pygame.display.flip()
     finally:
         camera.stop()
 
-def sorted_bbox(cup_bbox):
-  cup_bbox = sorted(cup_bbox, key = operator.itemgetter(1))
-  for i in range(4):
-    start = i * 4
-    end = i * 4 + 4
-    row = cup_bbox[start:end]
-    row = sorted(row, key = operator.itemgetter(0))
-    cup_bbox[start:end] = row
+def get_reference_positions(args):
+    try:
+        with open(FILE_PATH) as file:
+            print("Loading reference file: {}".format(FILE_PATH))
+            cup_reference_positions = json.load(file)
+            cup_reference = []
+            for cup_reference_position in cup_reference_positions:
+                if cup_reference_position[0] == 1:
+                    cup_reference.append(cup_reference_position[2])
 
-  return cup_bbox
+            cup_reference = sorted_bbox(cup_reference)
+
+    except FileNotFoundError:
+        print("File not found. A new reference file will be created.")
+        args.init = True
+
+    return cup_reference, args.init
+
+
+def sorted_bbox(cup_bbox):
+    cup_bbox = sorted(cup_bbox, key=operator.itemgetter(1))
+    for i in range(4):
+        start = i * 4
+        end = i * 4 + 4
+        row = cup_bbox[start:end]
+        row = sorted(row, key=operator.itemgetter(0))
+        cup_bbox[start:end] = row
+
+    return cup_bbox
 
 
 def draw_bbox(font, labels, red, scale_x, scale_y, mysurface, results):
@@ -149,8 +159,8 @@ def draw_bbox(font, labels, red, scale_x, scale_y, mysurface, results):
         rect = pygame.Rect(bbox.xmin, bbox.ymin, bbox.width, bbox.height)
         pygame.draw.rect(mysurface, red, rect, 1)
         label = "{:.0f}% {}".format(
-                        100 * result.score, labels.get(result.id, result.id)
-                    )
+            100 * result.score, labels.get(result.id, result.id)
+        )
         text = font.render(label, True, red)
         print(label, " ", end="")
         mysurface.blit(text, (bbox.xmin, bbox.ymin))
