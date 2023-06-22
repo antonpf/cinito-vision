@@ -237,6 +237,7 @@ def main():
 
 def get_reference_positions(args):
     try:
+        print("Loading reference positions {}".format(FILE_PATH))
         f = open(FILE_PATH)
         data = json.load(f)
         cup_reference_list = json.loads(data)
