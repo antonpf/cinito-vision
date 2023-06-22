@@ -127,18 +127,25 @@ def detect_cups(args, client):
 
 def get_reference_positions(args):
     try:
-        with open(FILE_PATH) as file:
-            print("Loading reference file: {}".format(FILE_PATH))
-            cup_reference_positions = json.load(file)
-            cup_reference = []
-            print(type(cup_reference_positions))
-            for cup_reference_position in cup_reference_positions:
-                print(cup_reference_position)
-                if cup_reference_position[0] == 1:
-                    cup_reference.append(cup_reference_position[2])
+        f = open('/home/mendel/cinito_vision/cup_positions.json')
+        data = json.load(f)
+        cup_reference_positions = json.loads(data)
+        print(type(cup_reference_positions))
+        cup_reference = []
+        return cup_reference, args.init 
+    
+        # with open(FILE_PATH) as file:
+        #     print("Loading reference file: {}".format(FILE_PATH))
+        #     cup_reference_positions = json.load(file)
+        #     cup_reference = []
+        #     print(type(cup_reference_positions))
+        #     for cup_reference_position in cup_reference_positions:
+        #         print(cup_reference_position)
+        #         if cup_reference_position[0] == 1:
+        #             cup_reference.append(cup_reference_position[2])
 
-            cup_reference = sorted_bbox(cup_reference)
-            return cup_reference, args.init
+        #     cup_reference = sorted_bbox(cup_reference)
+        #     return cup_reference, args.init
 
     except FileNotFoundError:
         print("File not found. A new reference file will be created.")
