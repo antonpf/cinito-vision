@@ -111,13 +111,7 @@ def main():
 
     FIRST_RUN = True
 
-    # Average fps over last 30 frames.
     fps_counter = avg_fps_counter(30)
-
-    # def check_reference(objs):
-    #   print('Checking if refence file exists ...')
-    #   if os.path.exists('/mnt/init/reference.txt'):
-    #     print('... done.')
 
     def user_callback(input_tensor, src_size, inference_box):
       TOPIC = 'becherlager'
@@ -196,7 +190,7 @@ def main():
       client.publish(TOPIC_INT,minimum_positive,qos=QOS)
       client.publish(TOPIC_COUNT,(len(objs)-1),qos=QOS)
       # print("Next Cup: ", minimum_positive)
-      time.sleep(10)
+      time.sleep(1)
       return generate_svg(src_size, inference_box, objs, labels, text_lines)
 
     result = gstreamer.run_pipeline(user_callback,
