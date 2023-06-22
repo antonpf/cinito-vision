@@ -217,7 +217,7 @@ def main():
         DATA = struct.pack("i", minimum_positive)
         DATA = bytearray(DATA)
         # DATA = minimum_positive
-        client.publish(TOPIC, DATA, qos=QOS)
+        client.publish(TOPIC, ((end_time - start_time) * 1000), qos=QOS)
         client.publish(TOPIC_INT, minimum_positive, qos=QOS)
         client.publish(TOPIC_COUNT, (len(objs) - 1), qos=QOS)
         # print("Next Cup: ", minimum_positive)
