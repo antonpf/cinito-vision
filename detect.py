@@ -100,7 +100,7 @@ def detect_cups(args, client):
                 fps_ms = 1.0 / (stop_time - last_time)
                 last_time = stop_time
                 annotate_text = "Inference: {:5.2f}ms FPS: {:3.1f}".format(inference_ms, fps_ms)
-                client.publish(TOPIC_COUNT,(len(results)),qos=QOS)
+                client.publish(TOPIC,1,qos=QOS)
                 draw_bbox(font, labels, red, scale_x, scale_y, mysurface, results)
                 text = font.render(annotate_text, True, red)
                 print(annotate_text)
@@ -170,6 +170,7 @@ def get_camera(cam_w, cam_h, camlist):
 def on_connect(client, userdata, flags, rc, args):
     if rc == 0:
         print("Connected to MQTT broker")
+        client.publish(TOPIC,0,qos=QOS)
         detect_cups(args, client)
     else:
         print("Connection failed")
