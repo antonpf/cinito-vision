@@ -133,12 +133,12 @@ def get_reference_positions(args):
                     cup_reference.append(cup_reference_position[2])
 
             cup_reference = sorted_bbox(cup_reference)
+            return cup_reference, args.init
 
     except FileNotFoundError:
         print("File not found. A new reference file will be created.")
         args.init = True
-
-    return cup_reference, args.init
+        return None, args.init
 
 
 def sorted_bbox(cup_bbox):
