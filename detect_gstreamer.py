@@ -153,7 +153,7 @@ def main():
           json.dump(jsonObjs, f, ensure_ascii=False, indent=4)
 
       # Load reference list of cups
-      f = open('/home/mendel/cinito-vision/references/cup_positions.json')
+      f = open('/home/mendel/cinito-vision/resources/cup_positions.json')
       data = json.load(f)
       cup_reference_list = json.loads(data)
       # print("Reference cups loaded...")
