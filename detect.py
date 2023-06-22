@@ -57,7 +57,7 @@ def main():
     client = mqtt.Client()
 
     # Set up the callback functions
-    client.on_connect = on_connect
+    client.on_connect = lambda client, userdata, flags, rc: on_connect(client, userdata, flags, rc, args)
     client.on_disconnect = on_disconnect
 
     # Set automatic reconnection
@@ -65,9 +65,7 @@ def main():
     # client.enable_auto_reconnect()
 
     client.connect(BROKER_ADRESS, PORT)
-
-    detect_cups(args)
-    print("MQTT conected ...")
+    client.loop_forever()
 
 def detect_cups(args):
     if args.init == True:
@@ -167,9 +165,11 @@ def get_camera(cam_w, cam_h, camlist):
 
 
 # Callback functions for connection and message events
-def on_connect(client, userdata, flags, rc):
+def on_connect(client, userdata, flags, rc, args):
     if rc == 0:
         print("Connected to MQTT broker")
+        client.publish(TOPIC,2,qos=QOS)
+        detect_cups(args)
     else:
         print("Connection failed")
 
