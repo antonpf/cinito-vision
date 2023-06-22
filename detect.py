@@ -59,11 +59,11 @@ def main():
     client = mqtt.Client()
 
     # Set up the callback functions
-    client.on_connect = lambda client, userdata, flags, rc: on_connect(client, userdata, flags, rc, args)
+    client.on_connect = on_connect
     client.on_disconnect = on_disconnect
 
     client.connect(BROKER_ADRESS, PORT)
-    client.loop_start()  #Start loop 
+    client.loop_start()
     detect_cups(args, client)
     client.loop_stop() 
 
@@ -102,7 +102,7 @@ def detect_cups(args, client):
                 fps_ms = 1.0 / (stop_time - last_time)
                 last_time = stop_time
                 annotate_text = "Inference: {:5.2f}ms FPS: {:3.1f}".format(inference_ms, fps_ms)
-                client.publish(TOPIC,1,qos=QOS)
+                client.publish(TOPIC,len(results),qos=QOS)
                 draw_bbox(font, labels, red, scale_x, scale_y, mysurface, results)
                 text = font.render(annotate_text, True, red)
                 print(annotate_text)
@@ -170,7 +170,7 @@ def get_camera(cam_w, cam_h, camlist):
 
 
 # Callback functions for connection and message events
-def on_connect(client, userdata, flags, rc, args):
+def on_connect(client, userdata, flags, rc):
     if rc == 0:
         print("Connected to MQTT broker")
     else:
