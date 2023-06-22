@@ -82,6 +82,8 @@ def detect_cups(args, client):
 
     cup_reference, args.init = get_reference_positions(args)
 
+    print(cup_reference)
+
     labels, interpreter = get_model(args)
 
     inference_size = input_size(interpreter)
@@ -113,6 +115,7 @@ def detect_cups(args, client):
                 print("Save init file ...")
                 args.init = False
             client.publish(TOPIC_COUNT, len(results), qos=QOS)
+            print(results)
             draw_bbox(font, labels, red, scale_x, scale_y, mysurface, results)
             text = font.render(annotate_text, True, red)
             # print(annotate_text)
