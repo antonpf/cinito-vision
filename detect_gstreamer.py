@@ -176,21 +176,9 @@ def main():
                 json.dump(jsonObjs, f, ensure_ascii=False, indent=4)
             cup_bbox, args.init = get_reference_positions(args)
 
-        # # Load reference list of cups
-        # f = open("/home/mendel/cinito-vision/resources/cup_positions.json")
-        # data = json.load(f)
-        # cup_reference_list = json.loads(data)
-        # # print("Reference cups loaded...")
-
-        # cup_bbox = []
-        # for cup_reference in cup_reference_list:
-        #     if cup_reference[0] == 1:
-        #         cup_bbox.append(cup_reference[2])
-
-        # cup_bbox = sorted_bbox(cup_bbox)
-
         # Get detected cups
-        # print("Number of detected Objects:", len(objs))
+        print("Number of detected Objects:", len(objs))
+
         cups = []
         for cup in objs:
             if cup[0] == 1:
