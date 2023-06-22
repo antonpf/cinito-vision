@@ -168,12 +168,13 @@ def main():
         ]
         print(' '.join(text_lines))
 
-        # if FIRST_RUN == True and len(objs) > 16:
-        #     jsonObjs = json.dumps(objs)
-        #     with open(
-        #         "/home/mendel/cinito_vision/cup_positions.json", "w", encoding="utf-8"
-        #     ) as f:
-        #         json.dump(jsonObjs, f, ensure_ascii=False, indent=4)
+        if args.init == True and len(objs) > 16:
+            jsonObjs = json.dumps(objs)
+            with open(
+                "/home/mendel/cinito_vision/cup_positions.json", "w", encoding="utf-8"
+            ) as f:
+                json.dump(jsonObjs, f, ensure_ascii=False, indent=4)
+            cup_bbox, args.init = get_reference_positions(args)
 
         # # Load reference list of cups
         # f = open("/home/mendel/cinito-vision/resources/cup_positions.json")
@@ -213,11 +214,9 @@ def main():
 
         DATA = struct.pack("i", minimum_positive)
         DATA = bytearray(DATA)
-        # DATA = minimum_positive
         client.publish(TOPIC, ((end_time - start_time) * 1000), qos=QOS)
         client.publish(TOPIC_INT, minimum_positive, qos=QOS)
         client.publish(TOPIC_COUNT, (len(objs) - 1), qos=QOS)
-        # print("Next Cup: ", minimum_positive)
         time.sleep(1)
         return generate_svg(src_size, inference_box, objs, labels, text_lines)
 
@@ -244,13 +243,12 @@ def get_reference_positions(args):
                 cup_bbox.append(cup_reference[2])
 
         cup_bbox = sorted_bbox(cup_bbox)
-        return cup_bbox, args.init
+        return cup_bbox, False
 
 
     except FileNotFoundError:
         print("File not found. A new reference file will be created.")
-        args.init = True
-        return None, args.init
+        return None, True
 
 # Callback functions for connection and message events
 def on_connect(client, userdata, flags, rc):
