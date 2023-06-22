@@ -152,7 +152,6 @@ def main():
     client.on_disconnect = on_disconnect
 
     client.connect(BROKER_ADRESS, PORT)
-    client.publish(TOPIC_INT, 42, qos=QOS)
     # client.loop_start()
     # detect_cups(args, client)
     # client.loop_stop()
@@ -165,6 +164,7 @@ def main():
         # except:
         #     print("Can't connect to MQTT Brocker: ", BROKER_ADRESS)
 
+        client.publish(TOPIC_INT, 43, qos=QOS)
         nonlocal fps_counter
         start_time = time.monotonic()
         run_inference(interpreter, input_tensor)
