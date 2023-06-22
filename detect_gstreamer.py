@@ -142,8 +142,6 @@ def main():
     labels = read_label_file(args.labels)
     inference_size = input_size(interpreter)
 
-    FIRST_RUN = True
-
     fps_counter = avg_fps_counter(30)
 
     def user_callback(input_tensor, src_size, inference_box):
@@ -166,12 +164,13 @@ def main():
             "Objects detected: {}".format(len(objs)),
         ]
         print(' '.join(text_lines))
-        if FIRST_RUN == True and len(objs) > 16:
-            jsonObjs = json.dumps(objs)
-            with open(
-                "/home/mendel/cinito_vision/cup_positions.json", "w", encoding="utf-8"
-            ) as f:
-                json.dump(jsonObjs, f, ensure_ascii=False, indent=4)
+        
+        # if FIRST_RUN == True and len(objs) > 16:
+        #     jsonObjs = json.dumps(objs)
+        #     with open(
+        #         "/home/mendel/cinito_vision/cup_positions.json", "w", encoding="utf-8"
+        #     ) as f:
+        #         json.dump(jsonObjs, f, ensure_ascii=False, indent=4)
 
         # Load reference list of cups
         f = open("/home/mendel/cinito-vision/resources/cup_positions.json")
@@ -209,13 +208,13 @@ def main():
         else:
             minimum_positive = -1
 
-        DATA = struct.pack("i", minimum_positive)
-        DATA = bytearray(DATA)
-        # DATA = minimum_positive
-        client.publish(TOPIC, DATA, qos=QOS)
-        client.publish(TOPIC_INT, minimum_positive, qos=QOS)
-        client.publish(TOPIC_COUNT, (len(objs) - 1), qos=QOS)
-        # print("Next Cup: ", minimum_positive)
+        # DATA = struct.pack("i", minimum_positive)
+        # DATA = bytearray(DATA)
+        # # DATA = minimum_positive
+        # client.publish(TOPIC, DATA, qos=QOS)
+        # client.publish(TOPIC_INT, minimum_positive, qos=QOS)
+        # client.publish(TOPIC_COUNT, (len(objs) - 1), qos=QOS)
+        # # print("Next Cup: ", minimum_positive)
         time.sleep(1)
         return generate_svg(src_size, inference_box, objs, labels, text_lines)
 
