@@ -112,10 +112,11 @@ def detect_cups(args, client):
                 if args.init == True:
                     print("Create new file ...")
                     print("Save init file ...")
+                    args.init = False
                 client.publish(TOPIC,len(results),qos=QOS)
                 draw_bbox(font, labels, red, scale_x, scale_y, mysurface, results)
                 text = font.render(annotate_text, True, red)
-                print(annotate_text)
+                # print(annotate_text)
                 mysurface.blit(text, (0, 0))
                 display.blit(mysurface, (0, 0))
                 pygame.display.flip()
