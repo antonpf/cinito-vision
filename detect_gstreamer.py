@@ -144,6 +144,8 @@ def main():
 
     fps_counter = avg_fps_counter(30)
 
+    cup_bbox, args.init = get_reference_positions(args)
+
     # Create a MQTT client
     client = mqtt.Client()
 
@@ -157,15 +159,8 @@ def main():
     # client.loop_stop()
 
     def user_callback(input_tensor, src_size, inference_box):
-        # try:
-        #     client = mqtt.Client()
-        #     client.connect(BROKER_ADRESS, PORT)
-        #     print('Verbunden mit MQTT Broker: ', BROKER_ADRESS)
-        # except:
-        #     print("Can't connect to MQTT Brocker: ", BROKER_ADRESS)
-
         client.publish(TOPIC_INT, 43, qos=QOS)
-        nonlocal fps_counter
+        
         start_time = time.monotonic()
         run_inference(interpreter, input_tensor)
         # For larger input image sizes, use the edgetpu.classification.engine for better performance
@@ -185,18 +180,18 @@ def main():
         #     ) as f:
         #         json.dump(jsonObjs, f, ensure_ascii=False, indent=4)
 
-        # Load reference list of cups
-        f = open("/home/mendel/cinito-vision/resources/cup_positions.json")
-        data = json.load(f)
-        cup_reference_list = json.loads(data)
-        # print("Reference cups loaded...")
+        # # Load reference list of cups
+        # f = open("/home/mendel/cinito-vision/resources/cup_positions.json")
+        # data = json.load(f)
+        # cup_reference_list = json.loads(data)
+        # # print("Reference cups loaded...")
 
-        cup_bbox = []
-        for cup_reference in cup_reference_list:
-            if cup_reference[0] == 1:
-                cup_bbox.append(cup_reference[2])
+        # cup_bbox = []
+        # for cup_reference in cup_reference_list:
+        #     if cup_reference[0] == 1:
+        #         cup_bbox.append(cup_reference[2])
 
-        cup_bbox = sorted_bbox(cup_bbox)
+        # cup_bbox = sorted_bbox(cup_bbox)
 
         # Get detected cups
         # print("Number of detected Objects:", len(objs))
@@ -239,6 +234,25 @@ def main():
         videofmt=args.videofmt,
         headless=True,
     )
+
+def get_reference_positions(args):
+    try:
+        f = open(FILE_PATH)
+        data = json.load(f)
+        cup_reference_list = json.loads(data)
+        cup_bbox = []
+        for cup_reference in cup_reference_list:
+            if cup_reference[0] == 1:
+                cup_bbox.append(cup_reference[2])
+
+        cup_bbox = sorted_bbox(cup_bbox)
+        return cup_bbox, args.init
+
+
+    except FileNotFoundError:
+        print("File not found. A new reference file will be created.")
+        args.init = True
+        return None, args.init
 
 # Callback functions for connection and message events
 def on_connect(client, userdata, flags, rc):
