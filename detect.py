@@ -130,6 +130,7 @@ def get_reference_positions(args):
         with open(FILE_PATH) as file:
             print("Loading reference file: {}".format(FILE_PATH))
             cup_reference_positions = json.load(file)
+            print("Test", cup_reference_positions)
             cup_reference = []
             for cup_reference_position in cup_reference_positions:
                 if cup_reference_position[0] == 1:
