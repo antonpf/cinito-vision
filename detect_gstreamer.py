@@ -159,8 +159,6 @@ def main():
     # client.loop_stop()
 
     def user_callback(input_tensor, src_size, inference_box):
-        client.publish(TOPIC_INT, 43, qos=QOS)
-        
         start_time = time.monotonic()
         run_inference(interpreter, input_tensor)
         # For larger input image sizes, use the edgetpu.classification.engine for better performance
@@ -216,13 +214,13 @@ def main():
         else:
             minimum_positive = -1
 
-        # DATA = struct.pack("i", minimum_positive)
-        # DATA = bytearray(DATA)
-        # # DATA = minimum_positive
-        # client.publish(TOPIC, DATA, qos=QOS)
-        # client.publish(TOPIC_INT, minimum_positive, qos=QOS)
-        # client.publish(TOPIC_COUNT, (len(objs) - 1), qos=QOS)
-        # # print("Next Cup: ", minimum_positive)
+        DATA = struct.pack("i", minimum_positive)
+        DATA = bytearray(DATA)
+        # DATA = minimum_positive
+        client.publish(TOPIC, DATA, qos=QOS)
+        client.publish(TOPIC_INT, minimum_positive, qos=QOS)
+        client.publish(TOPIC_COUNT, (len(objs) - 1), qos=QOS)
+        # print("Next Cup: ", minimum_positive)
         time.sleep(1)
         return generate_svg(src_size, inference_box, objs, labels, text_lines)
 
