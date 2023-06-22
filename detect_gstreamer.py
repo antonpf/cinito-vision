@@ -152,6 +152,7 @@ def main():
     client.on_disconnect = on_disconnect
 
     client.connect(BROKER_ADRESS, PORT)
+    client.publish(TOPIC_INT, 42, qos=QOS)
     # client.loop_start()
     # detect_cups(args, client)
     # client.loop_stop()
