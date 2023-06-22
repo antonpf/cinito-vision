@@ -127,7 +127,7 @@ def detect_cups(args, client):
 
 def get_reference_positions(args):
     try:
-        f = open('/home/mendel/cinito_vision/cup_positions.json')
+        f = open(FILE_PATH)
         data = json.load(f)
         cup_reference_positions = json.loads(data)
         print(type(cup_reference_positions))
