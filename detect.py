@@ -63,7 +63,9 @@ def main():
     client.on_disconnect = on_disconnect
 
     client.connect(BROKER_ADRESS, PORT)
-    client.loop_forever()
+    client.loop_start()  #Start loop 
+    detect_cups(args, client)
+    client.loop_stop() 
 
 def detect_cups(args, client):
     if args.init == True:
@@ -109,6 +111,7 @@ def detect_cups(args, client):
                 pygame.display.flip()
     finally:
         camera.stop()
+
 
 def draw_bbox(font, labels, red, scale_x, scale_y, mysurface, results):
     for result in results:
@@ -170,8 +173,6 @@ def get_camera(cam_w, cam_h, camlist):
 def on_connect(client, userdata, flags, rc, args):
     if rc == 0:
         print("Connected to MQTT broker")
-        client.publish(TOPIC,0,qos=QOS)
-        detect_cups(args, client)
     else:
         print("Connection failed")
 
