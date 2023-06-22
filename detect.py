@@ -70,15 +70,13 @@ def main():
     client.loop_stop() 
 
 def detect_cups(args, client):
-    if args.init == True:
-        print("Save init file ...")
-
     try:
         with open(FILE_PATH) as file:
             cup_reference_positions = json.load(file)
 
     except FileNotFoundError:
-        print("File not found. Please provide a valid file path.")
+        print("File not found. A new reference file will be created.")
+        args.init = True
 
     pygame.init()
     pygame.font.init()
@@ -111,6 +109,9 @@ def detect_cups(args, client):
                 fps_ms = 1.0 / (stop_time - last_time)
                 last_time = stop_time
                 annotate_text = "Inference: {:5.2f}ms FPS: {:3.1f}".format(inference_ms, fps_ms)
+                if args.init == True:
+                    print("Create new file ...")
+                    print("Save init file ...")
                 client.publish(TOPIC,len(results),qos=QOS)
                 draw_bbox(font, labels, red, scale_x, scale_y, mysurface, results)
                 text = font.render(annotate_text, True, red)
