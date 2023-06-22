@@ -16,6 +16,8 @@ from pycoral.utils.edgetpu import make_interpreter
 from pycoral.utils.edgetpu import run_inference
 
 TOPIC = "becherlager_test"
+TOPIC_INT = 'cupholder'
+TOPIC_COUNT = 'cupholder_count'
 BROKER_ADRESS = "172.19.12.128"
 PORT = 1883
 QOS = 1
@@ -63,7 +65,7 @@ def main():
     client.connect(BROKER_ADRESS, PORT)
     client.loop_forever()
 
-def detect_cups(args):
+def detect_cups(args, client):
     if args.init == True:
         print("Save init file ...")
 
@@ -98,16 +100,8 @@ def detect_cups(args):
                 fps_ms = 1.0 / (stop_time - last_time)
                 last_time = stop_time
                 annotate_text = "Inference: {:5.2f}ms FPS: {:3.1f}".format(inference_ms, fps_ms)
-                for result in results:
-                    bbox = result.bbox.scale(scale_x, scale_y)
-                    rect = pygame.Rect(bbox.xmin, bbox.ymin, bbox.width, bbox.height)
-                    pygame.draw.rect(mysurface, red, rect, 1)
-                    label = "{:.0f}% {}".format(
-                        100 * result.score, labels.get(result.id, result.id)
-                    )
-                    text = font.render(label, True, red)
-                    print(label, " ", end="")
-                    mysurface.blit(text, (bbox.xmin, bbox.ymin))
+                client.publish(TOPIC_COUNT,(len(results)),qos=QOS)
+                draw_bbox(font, labels, red, scale_x, scale_y, mysurface, results)
                 text = font.render(annotate_text, True, red)
                 print(annotate_text)
                 mysurface.blit(text, (0, 0))
@@ -115,6 +109,18 @@ def detect_cups(args):
                 pygame.display.flip()
     finally:
         camera.stop()
+
+def draw_bbox(font, labels, red, scale_x, scale_y, mysurface, results):
+    for result in results:
+        bbox = result.bbox.scale(scale_x, scale_y)
+        rect = pygame.Rect(bbox.xmin, bbox.ymin, bbox.width, bbox.height)
+        pygame.draw.rect(mysurface, red, rect, 1)
+        label = "{:.0f}% {}".format(
+                        100 * result.score, labels.get(result.id, result.id)
+                    )
+        text = font.render(label, True, red)
+        print(label, " ", end="")
+        mysurface.blit(text, (bbox.xmin, bbox.ymin))
 
 
 def get_display(cam_w, cam_h):
@@ -164,8 +170,7 @@ def get_camera(cam_w, cam_h, camlist):
 def on_connect(client, userdata, flags, rc, args):
     if rc == 0:
         print("Connected to MQTT broker")
-        client.publish(TOPIC,2,qos=QOS)
-        detect_cups(args)
+        detect_cups(args, client)
     else:
         print("Connection failed")
 
