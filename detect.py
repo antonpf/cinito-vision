@@ -3,6 +3,7 @@ import os
 import sys
 import time
 import json
+import operator
 
 import paho.mqtt.client as mqtt
 
@@ -73,6 +74,13 @@ def detect_cups(args, client):
     try:
         with open(FILE_PATH) as file:
             cup_reference_positions = json.load(file)
+            cup_reference = []
+            for cup_reference_position in cup_reference_positions:
+                if cup_reference_position[0] == 1:
+                    cup_reference.append(cup_reference_position[2])
+
+            cup_reference = sorted_bbox(cup_reference)
+
 
     except FileNotFoundError:
         print("File not found. A new reference file will be created.")
@@ -122,6 +130,17 @@ def detect_cups(args, client):
                 pygame.display.flip()
     finally:
         camera.stop()
+
+def sorted_bbox(cup_bbox):
+  cup_bbox = sorted(cup_bbox, key = operator.itemgetter(1))
+  for i in range(4):
+    start = i * 4
+    end = i * 4 + 4
+    row = cup_bbox[start:end]
+    row = sorted(row, key = operator.itemgetter(0))
+    cup_bbox[start:end] = row
+
+  return cup_bbox
 
 
 def draw_bbox(font, labels, red, scale_x, scale_y, mysurface, results):
