@@ -74,11 +74,10 @@ def detect_cups(args, client):
         print("Save init file ...")
 
     try:
-        with open(file_path) as file:
+        with open(FILE_PATH) as file:
             cup_reference_positions = json.load(file)
 
     except FileNotFoundError:
-        # Handle the exception if the file does not exist
         print("File not found. Please provide a valid file path.")
 
     pygame.init()
