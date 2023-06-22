@@ -2,6 +2,7 @@ import argparse
 import os
 import sys
 import time
+import json
 
 import paho.mqtt.client as mqtt
 
@@ -25,6 +26,7 @@ CAM_W, CAM_H = 640, 480
 DEFAULT_MODEL_DIR = "models"
 DEFAULT_MODEL = "cinito_vision_edgetpu.tflite"
 DEFAULT_LABELS = "cinito_labels.txt"
+FILE_PATH = "/home/mendel/cinito_vision/resources/cup_positions.json"
 
 def main():
     parser = argparse.ArgumentParser()
@@ -70,6 +72,14 @@ def main():
 def detect_cups(args, client):
     if args.init == True:
         print("Save init file ...")
+
+    try:
+        with open(file_path) as file:
+            cup_reference_positions = json.load(file)
+
+    except FileNotFoundError:
+        # Handle the exception if the file does not exist
+        print("File not found. Please provide a valid file path.")
 
     pygame.init()
     pygame.font.init()
