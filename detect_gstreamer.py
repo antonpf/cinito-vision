@@ -150,10 +150,9 @@ def main():
         try:
             client = mqtt.Client()
             client.connect(BROKER_ADRESS, PORT)
+            print('Verbunden mit MQTT Broker: ', BROKER_ADRESS)
         except:
             print("Can't connect to MQTT Brocker: ", BROKER_ADRESS)
-
-        # print('Verbunden mit MQTT Broker: ', BROKER_ADRESS)
 
         nonlocal fps_counter
         start_time = time.monotonic()
@@ -166,7 +165,7 @@ def main():
             "FPS: {} fps".format(round(next(fps_counter))),
             "Objects detected: {}".format(len(objs)),
         ]
-        # print(' '.join(text_lines))
+        print(' '.join(text_lines))
         if FIRST_RUN == True and len(objs) > 16:
             jsonObjs = json.dumps(objs)
             with open(
@@ -222,7 +221,7 @@ def main():
 
     result = gstreamer.run_pipeline(
         user_callback,
-        src_size=(640, 480),
+        src_size=(CAM_W, CAM_H),
         appsink_size=inference_size,
         videosrc=args.videosrc,
         videofmt=args.videofmt,
