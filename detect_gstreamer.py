@@ -154,9 +154,6 @@ def main():
     client.on_disconnect = on_disconnect
 
     client.connect(BROKER_ADRESS, PORT)
-    # client.loop_start()
-    # detect_cups(args, client)
-    # client.loop_stop()
 
     def user_callback(input_tensor, src_size, inference_box):
         start_time = time.monotonic()
@@ -224,6 +221,7 @@ def main():
         time.sleep(1)
         return generate_svg(src_size, inference_box, objs, labels, text_lines)
 
+    client.loop_start()
     result = gstreamer.run_pipeline(
         user_callback,
         src_size=(CAM_W, CAM_H),
@@ -232,6 +230,7 @@ def main():
         videofmt=args.videofmt,
         headless=True,
     )
+    client.loop_stop()
 
 def get_reference_positions(args):
     try:
