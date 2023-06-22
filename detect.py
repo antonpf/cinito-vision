@@ -27,7 +27,7 @@ CAM_W, CAM_H = 640, 480
 DEFAULT_MODEL_DIR = "models"
 DEFAULT_MODEL = "cinito_vision_edgetpu.tflite"
 DEFAULT_LABELS = "cinito_labels.txt"
-FILE_PATH = "/home/mendel/cinito_vision/resources/cup_positions.json"
+FILE_PATH = "/home/mendel/cinito-vision/resources/cup_positions.json"
 
 
 def main():
