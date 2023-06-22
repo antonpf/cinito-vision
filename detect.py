@@ -19,23 +19,22 @@ TOPIC = "becherlager_test"
 BROKER_ADRESS = "172.19.12.128"
 PORT = 1883
 QOS = 1
-
+CAM_W, CAM_H = 640, 480
+DEFAULT_MODEL_DIR = "models"
+DEFAULT_MODEL = "cinito_vision_edgetpu.tflite"
+DEFAULT_LABELS = "cinito_labels.txt"
 
 def main():
-    cam_w, cam_h = 640, 480
-    default_model_dir = "models"
-    default_model = "cinito_vision_edgetpu.tflite"
-    default_labels = "cinito_labels.txt"
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--model",
         help=".tflite model path",
-        default=os.path.join(default_model_dir, default_model),
+        default=os.path.join(DEFAULT_MODEL_DIR, DEFAULT_MODEL),
     )
     parser.add_argument(
         "--labels",
         help="label file path",
-        default=os.path.join(default_model_dir, default_labels),
+        default=os.path.join(DEFAULT_MODEL_DIR, DEFAULT_LABELS),
     )
     parser.add_argument(
         "--top_k",
@@ -54,8 +53,6 @@ def main():
     )
     args = parser.parse_args()
 
-    labels, interpreter = get_model(args)
-
     # Create a MQTT client
     client = mqtt.Client()
 
@@ -69,6 +66,10 @@ def main():
 
     client.connect(BROKER_ADRESS, PORT)
 
+    detect_cups(args)
+    print("MQTT conected ...")
+
+def detect_cups(args):
     if args.init == True:
         print("Save init file ...")
 
@@ -78,74 +79,48 @@ def main():
 
     pygame.camera.init()
     camlist = pygame.camera.list_cameras()
-
+    
+    labels, interpreter = get_model(args)
+    
     inference_size = input_size(interpreter)
 
-    camera = get_camera(cam_w, cam_h, camlist)
+    camera = get_camera(CAM_W, CAM_H, camlist)
 
-    display = get_display(cam_w, cam_h)
+    display = get_display(CAM_W, CAM_H)
 
     red = pygame.Color(255, 0, 0)
 
-    scale_x, scale_y = cam_w / inference_size[0], cam_h / inference_size[1]
+    scale_x, scale_y = CAM_W / inference_size[0], CAM_H / inference_size[1]
     try:
         last_time = time.monotonic()
         while True:
-            detect_cups(
-                args,
-                labels,
-                interpreter,
-                font,
-                inference_size,
-                camera,
-                display,
-                red,
-                scale_x,
-                scale_y,
-                last_time,
-            )
+                mysurface = camera.get_image()
+                imagen = pygame.transform.scale(mysurface, inference_size)
+                start_time = time.monotonic()
+                run_inference(interpreter, imagen.get_buffer().raw)
+                results = get_objects(interpreter, args.threshold)[: args.top_k]
+                stop_time = time.monotonic()
+                inference_ms = (stop_time - start_time) * 1000.0
+                fps_ms = 1.0 / (stop_time - last_time)
+                last_time = stop_time
+                annotate_text = "Inference: {:5.2f}ms FPS: {:3.1f}".format(inference_ms, fps_ms)
+                for result in results:
+                    bbox = result.bbox.scale(scale_x, scale_y)
+                    rect = pygame.Rect(bbox.xmin, bbox.ymin, bbox.width, bbox.height)
+                    pygame.draw.rect(mysurface, red, rect, 1)
+                    label = "{:.0f}% {}".format(
+                        100 * result.score, labels.get(result.id, result.id)
+                    )
+                    text = font.render(label, True, red)
+                    print(label, " ", end="")
+                    mysurface.blit(text, (bbox.xmin, bbox.ymin))
+                text = font.render(annotate_text, True, red)
+                print(annotate_text)
+                mysurface.blit(text, (0, 0))
+                display.blit(mysurface, (0, 0))
+                pygame.display.flip()
     finally:
         camera.stop()
-
-
-def detect_cups(
-    args,
-    labels,
-    interpreter,
-    font,
-    inference_size,
-    camera,
-    display,
-    red,
-    scale_x,
-    scale_y,
-    last_time,
-):
-    mysurface = camera.get_image()
-    imagen = pygame.transform.scale(mysurface, inference_size)
-    start_time = time.monotonic()
-    run_inference(interpreter, imagen.get_buffer().raw)
-    results = get_objects(interpreter, args.threshold)[: args.top_k]
-    stop_time = time.monotonic()
-    inference_ms = (stop_time - start_time) * 1000.0
-    fps_ms = 1.0 / (stop_time - last_time)
-    last_time = stop_time
-    annotate_text = "Inference: {:5.2f}ms FPS: {:3.1f}".format(inference_ms, fps_ms)
-    for result in results:
-        bbox = result.bbox.scale(scale_x, scale_y)
-        rect = pygame.Rect(bbox.xmin, bbox.ymin, bbox.width, bbox.height)
-        pygame.draw.rect(mysurface, red, rect, 1)
-        label = "{:.0f}% {}".format(
-            100 * result.score, labels.get(result.id, result.id)
-        )
-        text = font.render(label, True, red)
-        print(label, " ", end="")
-        mysurface.blit(text, (bbox.xmin, bbox.ymin))
-    text = font.render(annotate_text, True, red)
-    print(annotate_text)
-    mysurface.blit(text, (0, 0))
-    display.blit(mysurface, (0, 0))
-    pygame.display.flip()
 
 
 def get_display(cam_w, cam_h):
