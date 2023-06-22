@@ -135,7 +135,7 @@ def main():
         help="initialises the reference positions of the individual cups",
     )
     args = parser.parse_args()
-
+    
     print("Loading {} with {} labels.".format(args.model, args.labels))
     interpreter = make_interpreter(args.model)
     interpreter.allocate_tensors()
@@ -144,13 +144,25 @@ def main():
 
     fps_counter = avg_fps_counter(30)
 
+    # Create a MQTT client
+    client = mqtt.Client()
+
+    # Set up the callback functions
+    client.on_connect = on_connect
+    client.on_disconnect = on_disconnect
+
+    client.connect(BROKER_ADRESS, PORT)
+    # client.loop_start()
+    # detect_cups(args, client)
+    # client.loop_stop()
+
     def user_callback(input_tensor, src_size, inference_box):
-        try:
-            client = mqtt.Client()
-            client.connect(BROKER_ADRESS, PORT)
-            print('Verbunden mit MQTT Broker: ', BROKER_ADRESS)
-        except:
-            print("Can't connect to MQTT Brocker: ", BROKER_ADRESS)
+        # try:
+        #     client = mqtt.Client()
+        #     client.connect(BROKER_ADRESS, PORT)
+        #     print('Verbunden mit MQTT Broker: ', BROKER_ADRESS)
+        # except:
+        #     print("Can't connect to MQTT Brocker: ", BROKER_ADRESS)
 
         nonlocal fps_counter
         start_time = time.monotonic()
@@ -164,7 +176,7 @@ def main():
             "Objects detected: {}".format(len(objs)),
         ]
         print(' '.join(text_lines))
-        
+
         # if FIRST_RUN == True and len(objs) > 16:
         #     jsonObjs = json.dumps(objs)
         #     with open(
@@ -227,6 +239,24 @@ def main():
         headless=True,
     )
 
+# Callback functions for connection and message events
+def on_connect(client, userdata, flags, rc):
+    if rc == 0:
+        print("Connected to MQTT broker")
+    else:
+        print("Connection failed")
+
+
+def on_disconnect(client, userdata, rc):
+    if rc != 0:
+        print("Unexpected disconnection from MQTT broker")
+        client.publish(TOPIC, "Connection broken")
+        while not client.is_connected():
+            try:
+                client.reconnect()
+            except:
+                print("Error when reconnecting. Next attempt in 5 seconds...")
+                time.sleep(5)
 
 if __name__ == "__main__":
     main()
