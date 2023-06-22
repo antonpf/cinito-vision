@@ -60,10 +60,6 @@ def main():
     client.on_connect = lambda client, userdata, flags, rc: on_connect(client, userdata, flags, rc, args)
     client.on_disconnect = on_disconnect
 
-    # Set automatic reconnection
-    # client.reconnect_delay_set(min_delay=1, max_delay=120)
-    # client.enable_auto_reconnect()
-
     client.connect(BROKER_ADRESS, PORT)
     client.loop_forever()
 
@@ -177,7 +173,13 @@ def on_connect(client, userdata, flags, rc, args):
 def on_disconnect(client, userdata, rc):
     if rc != 0:
         print("Unexpected disconnection from MQTT broker")
-        client.reconnect()
+        client.publish(TOPIC, "Connection broken")
+        while not client.is_connected():
+            try:
+                client.reconnect()
+            except:
+                print("Error when reconnecting. Next attempt in 5 seconds...")
+                time.sleep(5)
 
 
 if __name__ == "__main__":
