@@ -26,6 +26,7 @@ DEFAULT_MODEL = "cinito_vision_edgetpu.tflite"
 DEFAULT_LABELS = "cinito_labels.txt"
 FILE_PATH = "/home/mendel/cinito-vision/resources/cup_positions.json"
 
+
 def generate_svg(src_size, inference_box, objs, labels, text_lines):
     svg = SVG(src_size)
     src_w, src_h = src_size
@@ -98,6 +99,45 @@ def check_cup_bbox(cup_bbox, basket):
     return positions
 
 
+def get_reference_positions(args):
+    try:
+        print("Loading reference positions {}".format(FILE_PATH))
+        f = open(FILE_PATH)
+        data = json.load(f)
+        cup_reference_list = json.loads(data)
+        cup_bbox = []
+        for cup_reference in cup_reference_list:
+            if cup_reference[0] == 1:
+                cup_bbox.append(cup_reference[2])
+
+        cup_bbox = sorted_bbox(cup_bbox)
+        return cup_bbox, False
+
+    except FileNotFoundError:
+        print("File not found. A new reference file will be created.")
+        return None, True
+
+
+# Callback functions for connection and message events
+def on_connect(client, userdata, flags, rc):
+    if rc == 0:
+        print("Connected to MQTT broker")
+    else:
+        print("Connection failed")
+
+
+def on_disconnect(client, userdata, rc):
+    if rc != 0:
+        print("Unexpected disconnection from MQTT broker")
+        client.publish(TOPIC, "Connection broken")
+        while not client.is_connected():
+            try:
+                client.reconnect()
+            except:
+                print("Error when reconnecting. Next attempt in 5 seconds...")
+                time.sleep(5)
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -135,7 +175,7 @@ def main():
         help="initialises the reference positions of the individual cups",
     )
     args = parser.parse_args()
-    
+
     print("Loading {} with {} labels.".format(args.model, args.labels))
     interpreter = make_interpreter(args.model)
     interpreter.allocate_tensors()
@@ -166,15 +206,15 @@ def main():
             "FPS: {} fps".format(round(next(fps_counter))),
             "Objects detected: {}".format(len(objs)),
         ]
-        print(' '.join(text_lines))
+        print(" ".join(text_lines))
 
-        # if args.init == True and len(objs) > 16:
-        #     jsonObjs = json.dumps(objs)
-        #     with open(
-        #         "/home/mendel/cinito_vision/cup_positions.json", "w", encoding="utf-8"
-        #     ) as f:
-        #         json.dump(jsonObjs, f, ensure_ascii=False, indent=4)
-        #     cup_bbox, args.init = get_reference_positions(args)
+        if args.init == True and len(objs) > 16:
+            jsonObjs = json.dumps(objs)
+            with open(
+                "/home/mendel/cinito_vision/cup_positions.json", "w", encoding="utf-8"
+            ) as f:
+                json.dump(jsonObjs, f, ensure_ascii=False, indent=4)
+            cup_bbox, args.init = get_reference_positions(args)
 
         # Get detected cups
         print("Number of detected Objects:", len(objs))
@@ -202,7 +242,7 @@ def main():
 
         DATA = struct.pack("i", minimum_positive)
         DATA = bytearray(DATA)
-        client.publish(TOPIC, ((end_time - start_time) * 1000), qos=QOS)
+        client.publish(TOPIC, DATA, qos=QOS)
         client.publish(TOPIC_INT, minimum_positive, qos=QOS)
         client.publish(TOPIC_COUNT, (len(objs) - 1), qos=QOS)
         time.sleep(1)
@@ -219,43 +259,6 @@ def main():
     )
     client.loop_stop()
 
-def get_reference_positions(args):
-    try:
-        print("Loading reference positions {}".format(FILE_PATH))
-        f = open(FILE_PATH)
-        data = json.load(f)
-        cup_reference_list = json.loads(data)
-        cup_bbox = []
-        for cup_reference in cup_reference_list:
-            if cup_reference[0] == 1:
-                cup_bbox.append(cup_reference[2])
-
-        cup_bbox = sorted_bbox(cup_bbox)
-        return cup_bbox, False
-
-
-    except FileNotFoundError:
-        print("File not found. A new reference file will be created.")
-        return None, True
-
-# Callback functions for connection and message events
-def on_connect(client, userdata, flags, rc):
-    if rc == 0:
-        print("Connected to MQTT broker")
-    else:
-        print("Connection failed")
-
-
-def on_disconnect(client, userdata, rc):
-    if rc != 0:
-        print("Unexpected disconnection from MQTT broker")
-        client.publish(TOPIC, "Connection broken")
-        while not client.is_connected():
-            try:
-                client.reconnect()
-            except:
-                print("Error when reconnecting. Next attempt in 5 seconds...")
-                time.sleep(5)
 
 if __name__ == "__main__":
     main()
