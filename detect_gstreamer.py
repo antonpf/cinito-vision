@@ -215,7 +215,8 @@ def main():
             ) as f:
                 json.dump(jsonObjs, f, ensure_ascii=False, indent=4)
         
-        cup_bbox, args.init = get_reference_positions(args)
+        if args.init == True:
+            cup_bbox, args.init = get_reference_positions(args)
 
         # Get detected cups
         print("Number of detected Objects:", len(objs))
