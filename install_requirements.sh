@@ -14,10 +14,18 @@
 # limitations under the License.
 
 if grep -s -q "Mendel" /etc/os-release; then
-  echo "Installing DevBoard specific dependencies"
-  sudo apt-get install -y python3-pygame
+  echo "No DevBoard specific dependencies"
 else
-  sudo apt-get install -y libsdl-image1.2-dev libsdl-ttf2.0-dev libatlas-base-dev
-  sudo pip3 install pygame
-fi
+  # Install gstreamer 
+  sudo apt-get install -y gstreamer1.0-plugins-bad gstreamer1.0-plugins-good python3-gst-1.0 python3-gi gir1.2-gtk-3.0
 
+  if grep -s -q "Raspberry Pi" /sys/firmware/devicetree/base/model; then
+    echo "Installing Raspberry Pi specific dependencies"
+    sudo apt-get install python3-rpi.gpio
+    # Add v4l2 video module to kernel
+    if ! grep -q "bcm2835-v4l2" /etc/modules; then
+      echo bcm2835-v4l2 | sudo tee -a /etc/modules
+    fi
+    sudo modprobe bcm2835-v4l2 
+  fi
+fi

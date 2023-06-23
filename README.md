@@ -1,11 +1,9 @@
-# cinito-vision
+# GStreamer object detection with Coral
 
-## Pygame camera examples with Coral
+This folder contains code using [GStreamer](https://github.com/GStreamer/gstreamer) to
+obtain camera images and perform object detection on the Edge TPU.
 
-This folder contains example code using [pygame](https://github.com/pygame/pygame) to obtain
-camera images and then perform image classification or object detection on the Edge TPU.
-
-This code works on Linux using a webcam, Raspberry Pi with the Pi Camera, and on the Coral Dev Board using a webcam. For the first two, you also need a Coral USB/PCIe/M.2 Accelerator.
+This code works on the Coral Dev Board mini using the Coral Camera.
 
 ## Set up your device
 
@@ -18,52 +16,35 @@ This code works on Linux using a webcam, Raspberry Pi with the Pi Camera, and on
     https://www.tensorflow.org/lite/guide/python)). You can check which version is installed
     using the ```pip3 show tflite_runtime``` command.
 
+    > **Note**
+    > Also make sure the correct date is set, otherwise there may be problems with updates or cloning the Ropo. The current date can be set with the command 
+    > ```
+    > sudo date +%Y%m%d -s "YYYYMMDD"
+    > ```
+
 2.  Clone this Git repo onto your computer or Dev Board:
 
     ```
-    mkdir google-coral && cd google-coral
-
-    git clone https://github.com/google-coral/examples-camera --depth 1
+    git clone https://github.com/antonpf/cinito-vision.git
+    cd cinito-vision
     ```
 
-3.  Download the models:
+3.  Install the GStreamer libraries (if you're using the Coral Dev (mini) Board, you can skip this):
 
     ```
-    cd examples-camera
-
-    sh download_models.sh
-    ```
-
-4.  Install pygame:
-
-    ```
-    cd pygame
+    cd gstreamer
 
     bash install_requirements.sh
     ```
 
-## Running on Coral Dev Board
-Set up display before running:
-```
-export DISPLAY=":0"
-```
-
-## Run the classification demo
-```
-python3 classify_capture.py
-```
-
-By default, this uses the ```mobilenet_v2_1.0_224_quant_edgetpu.tflite``` model.
-
-You can change the model and the labels file using flags ```--model``` and ```--labels```.
-
-
-## Run the detection demo (SSD models)
+## Run the detection demo (Fine-tuned SSD model)
 
 ```
 python3 detect.py
 ```
 
-By default, this uses the ```mobilenet_ssd_v2_coco_quant_postprocess_edgetpu.tflite``` model.
+Likewise, you can change the model and the labels file using ```--model``` and ```--labels```.
 
-You can change the model and the labels file using flags ```--model``` and ```--labels```.
+By default, the object detection use the attached Coral Camera. If you want to use a USB camera,
+edit the ```gstreamer.py``` file and change ```device=/dev/video0``` to ```device=/dev/video1```.
+
