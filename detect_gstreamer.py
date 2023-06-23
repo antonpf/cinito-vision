@@ -168,13 +168,13 @@ def main():
         ]
         print(' '.join(text_lines))
 
-        if args.init == True and len(objs) > 16:
-            jsonObjs = json.dumps(objs)
-            with open(
-                "/home/mendel/cinito_vision/cup_positions.json", "w", encoding="utf-8"
-            ) as f:
-                json.dump(jsonObjs, f, ensure_ascii=False, indent=4)
-            cup_bbox, args.init = get_reference_positions(args)
+        # if args.init == True and len(objs) > 16:
+        #     jsonObjs = json.dumps(objs)
+        #     with open(
+        #         "/home/mendel/cinito_vision/cup_positions.json", "w", encoding="utf-8"
+        #     ) as f:
+        #         json.dump(jsonObjs, f, ensure_ascii=False, indent=4)
+        #     cup_bbox, args.init = get_reference_positions(args)
 
         # Get detected cups
         print("Number of detected Objects:", len(objs))
