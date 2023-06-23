@@ -206,7 +206,7 @@ def main():
             "FPS: {} fps".format(round(next(fps_counter))),
             "Objects detected: {}".format(len(objs)),
         ]
-        print(" ".join(text_lines))
+        # print(" ".join(text_lines))
 
         if args.init == True and len(objs) > 16:
             jsonObjs = json.dumps(objs)
@@ -215,12 +215,9 @@ def main():
             ) as f:
                 json.dump(jsonObjs, f, ensure_ascii=False, indent=4)
         
-        if args.init == True:
-            cup_bbox, args.init = get_reference_positions(args)
+        # cup_bbox, args.init = get_reference_positions(args)
 
         # Get detected cups
-        print("Number of detected Objects:", len(objs))
-
         cups = []
         for cup in objs:
             if cup[0] == 1:
@@ -247,7 +244,7 @@ def main():
         client.publish(TOPIC, DATA, qos=QOS)
         client.publish(TOPIC_INT, minimum_positive, qos=QOS)
         client.publish(TOPIC_COUNT, (len(objs) - 1), qos=QOS)
-        time.sleep(1)
+        time.sleep(2)
         return generate_svg(src_size, inference_box, objs, labels, text_lines)
 
     client.loop_start()
