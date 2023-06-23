@@ -193,6 +193,7 @@ def main():
     client.on_connect = on_connect
     client.on_disconnect = on_disconnect
 
+    client.will_set(TOPIC, payload=-1, qos=QOS, retain=True)
     client.connect(BROKER_ADRESS, PORT)
 
     def user_callback(input_tensor, src_size, inference_box):
