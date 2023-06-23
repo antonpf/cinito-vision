@@ -1,0 +1,14 @@
+[Unit]
+Description=cinito_vision
+After=network-online.target
+
+[Service]
+Type=simple
+User=mendel
+RestartSec=10s
+WorkingDirectory=/home/mendel/cinito-vision
+ExecStart=/usr/bin/python3 /home/mendel/cinito-vision/detect.py
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
