@@ -37,7 +37,7 @@ This code works on the Coral Dev Board mini using the Coral Camera.
     bash install_requirements.sh
     ```
 
-## Run the detection demo (Fine-tuned SSD model)
+## Run the object detection (fine-tuned EfficientDet-Lite1)
 
 ```
 python3 detect.py
@@ -48,3 +48,13 @@ Likewise, you can change the model and the labels file using ```--model``` and `
 By default, the object detection use the attached Coral Camera. If you want to use a USB camera,
 edit the ```gstreamer.py``` file and change ```device=/dev/video0``` to ```device=/dev/video1```.
 
+## Run the object detection in the background
+To run a Python script in the background, you have a few options, depending on your operating system and requirements. Here are two approaches:
+
+1. Command line:
+    You can use the nohup command followed by your script execution command. This allows the script to continue running even after you close the terminal.
+    ```
+    nohup python3 detect.py &
+    ```
+
+2. Process manager:
