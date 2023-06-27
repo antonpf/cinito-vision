@@ -117,6 +117,28 @@ def get_reference_positions(args):
         print("File not found. A new reference file will be created.")
         return None, True
 
+def get_next_cup_position(objs, cup_bbox):
+        cups = []
+        for cup in objs:
+            if cup[0] == 1:
+                cups.append(cup[2])
+
+        cup_list = []
+        if len(cups) > 0:
+            for cup in cups:
+                cup_list.append(list(cup))
+            cup_list = sorted_bbox(cup_list)
+
+            pos_list = []
+            for cup in cup_list:
+                pos = centerIsInside(cup, cup_bbox)
+                pos_list.append(pos)
+            positive_values = [x for x in pos_list if x >= 0]
+            if len(positive_values) > 0:
+                minimum_positive = min(positive_values)
+        else:
+            minimum_positive = -1
+        return minimum_positive
 
 # Callback functions for connection and message events
 def on_connect(client, userdata, flags, rc):
@@ -197,6 +219,7 @@ def main():
     client.connect(BROKER_ADRESS, PORT)
 
     def user_callback(input_tensor, src_size, inference_box):
+        print("Image Type: ", type(input_tensor))
         start_time = time.monotonic()
         run_inference(interpreter, input_tensor)
         # For larger input image sizes, use the edgetpu.classification.engine for better performance
@@ -218,34 +241,14 @@ def main():
         
         # cup_bbox, args.init = get_reference_positions(args)
 
-        # Get detected cups
-        cups = []
-        for cup in objs:
-            if cup[0] == 1:
-                cups.append(cup[2])
-
-        cup_list = []
-        if len(cups) > 0:
-            for cup in cups:
-                cup_list.append(list(cup))
-            cup_list = sorted_bbox(cup_list)
-
-            pos_list = []
-            for cup in cup_list:
-                pos = centerIsInside(cup, cup_bbox)
-                pos_list.append(pos)
-            positive_values = [x for x in pos_list if x >= 0]
-            if len(positive_values) > 0:
-                minimum_positive = min(positive_values)
-        else:
-            minimum_positive = -1
+        minimum_positive = get_next_cup_position(objs, cup_bbox)
 
         DATA = struct.pack("i", minimum_positive)
         DATA = bytearray(DATA)
         client.publish(TOPIC, DATA, qos=QOS)
         client.publish(TOPIC_INT, minimum_positive, qos=QOS)
         client.publish(TOPIC_COUNT, (len(objs) - 1), qos=QOS)
-        time.sleep(2)
+        time.sleep(5)
         return generate_svg(src_size, inference_box, objs, labels, text_lines)
 
     client.loop_start()
