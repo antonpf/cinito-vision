@@ -7,6 +7,9 @@ import operator
 import paho.mqtt.client as mqtt
 import struct
 
+from gi.repository import GLib, GObject, Gst, GstBase
+from PIL import Image
+
 from common import avg_fps_counter, SVG
 from pycoral.adapters.common import input_size
 from pycoral.adapters.detect import get_objects
@@ -220,6 +223,9 @@ def main():
 
     def user_callback(input_tensor, src_size, inference_box):
         print("Image Type: ", type(input_tensor))
+        buf = input_tensor.get_buffer()
+        result, mapinfo = buf.map(Gst.MapFlags.READ)
+
         start_time = time.monotonic()
         run_inference(interpreter, input_tensor)
         # For larger input image sizes, use the edgetpu.classification.engine for better performance
