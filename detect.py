@@ -223,8 +223,7 @@ def main():
 
     def user_callback(input_tensor, src_size, inference_box):
         print("Image Type: ", type(input_tensor))
-        buf = input_tensor.get_buffer()
-        result, mapinfo = buf.map(Gst.MapFlags.READ)
+        result, mapinfo = input_tensor.map(Gst.MapFlags.READ)
 
         start_time = time.monotonic()
         run_inference(interpreter, input_tensor)
