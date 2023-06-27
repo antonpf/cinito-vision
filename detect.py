@@ -2,6 +2,7 @@ import argparse
 import gstreamer
 import os
 import time
+import datetime
 import json
 import operator
 import paho.mqtt.client as mqtt
@@ -224,7 +225,8 @@ def main():
     def user_callback(input_tensor, src_size, inference_box):
         print("Image Type: ", type(input_tensor))
         result, mapinfo = input_tensor.map(Gst.MapFlags.READ)
-        time_stamp = time.time()
+        time_stamp = datetime.datetime.now()
+        time_stamp = time_stamp.strftime("%Y-%m-%d_%H:%M:%S")
         imgfile = "/home/mendel/images/img" + time_stamp + ".png"
         print('Saving image: ' + imgfile)
         
