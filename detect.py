@@ -223,17 +223,6 @@ def main():
     client.connect(BROKER_ADRESS, PORT)
 
     def user_callback(input_tensor, src_size, inference_box):
-        print("Image Type: ", type(input_tensor))
-        result, mapinfo = input_tensor.map(Gst.MapFlags.READ)
-        time_stamp = datetime.datetime.now()
-        time_stamp = time_stamp.strftime("%Y-%m-%d_%H:%M:%S")
-        imgfile = "/home/mendel/images/img" + time_stamp + ".png"
-        print('Saving image: ' + imgfile)
-        
-        img = Image.frombytes('RGB', (640, 480), mapinfo.data, 'raw')
-        img.save(imgfile)
-        img.close()
-
         start_time = time.monotonic()
         run_inference(interpreter, input_tensor)
         # For larger input image sizes, use the edgetpu.classification.engine for better performance
