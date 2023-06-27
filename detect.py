@@ -226,7 +226,7 @@ def main():
     def user_callback(input_tensor, src_size, inference_box):
         print("Image Type: ", type(input_tensor))
         result, mapinfo = input_tensor.map(Gst.MapFlags.READ)
-        imgfile = "img" + count_img + ".png"
+        imgfile = "/home/mendel/images/img" + count_img + ".png"
         print('Saving image: ' + imgfile)
         
         img = Image.frombytes('RGB', (640, 480), mapinfo.data, 'raw')
