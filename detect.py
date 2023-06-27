@@ -221,9 +221,19 @@ def main():
     client.will_set(TOPIC, payload=-1, qos=QOS, retain=True)
     client.connect(BROKER_ADRESS, PORT)
 
+    count_img = 0
+
     def user_callback(input_tensor, src_size, inference_box):
         print("Image Type: ", type(input_tensor))
         result, mapinfo = input_tensor.map(Gst.MapFlags.READ)
+        imgfile = "img" + count_img + ".png"
+        print('Saving image: ' + imgfile)
+        
+        img = Image.frombytes('RGB', (640, 480), mapinfo.data, 'raw')
+        img.save(imgfile)
+        img.close()
+
+        count_img = count_img + 1
 
         start_time = time.monotonic()
         run_inference(interpreter, input_tensor)
