@@ -57,7 +57,7 @@ def generate_svg(src_size, inference_box, objs, labels, text_lines):
     return svg.finish()
 
 
-def centerIsInside(cup, basket):
+def center_inside(cup, basket):
     """
     Cup is the list with x1, y1, x2 and y2 for that cup
     Basket is the list with x1, y1, x2 and y2 for that position in the basket
@@ -83,6 +83,30 @@ def centerIsInside(cup, basket):
     return -1
 
 
+def is_bbox_inside(bbox1, bbox2):
+    # bbox1: [x1, y1, x2, y2] - coordinates of the first bounding box
+    # bbox2: [x1, y1, x2, y2] - coordinates of the second bounding box
+
+    # Check if the x and y coordinates of bbox1 are within the range of bbox2
+    if (
+        bbox1[0] >= bbox2[0]
+        and bbox1[1] >= bbox2[1]
+        and bbox1[2] <= bbox2[2]
+        and bbox1[3] <= bbox2[3]
+    ):
+        return True
+    else:
+        return False
+
+
+def cups_inside_basket(cups, basket):
+    cups_in_basket = []
+    for cup in cups:
+        if is_bbox_inside(cup, basket):
+            cups_in_basket.append(cup)
+    return cups_in_basket
+
+
 def sorted_bbox(cup_bbox):
     cup_bbox = sorted(cup_bbox, key=operator.itemgetter(1))
     for i in range(4):
@@ -98,7 +122,7 @@ def sorted_bbox(cup_bbox):
 def check_cup_bbox(cup_bbox, basket):
     cup_bbox = sorted_bbox(cup_bbox)
     for cup in cup_bbox:
-        positions = centerIsInside(cup, basket)
+        positions = center_inside(cup, basket)
 
     return positions
 
@@ -108,12 +132,16 @@ def get_reference_positions(args):
         print("Loading reference positions {}".format(FILE_PATH))
         f = open(FILE_PATH)
         data = json.load(f)
-        cup_reference_list = json.loads(data)
+        reference_positions = json.loads(data)
         cup_bbox = []
-        for cup_reference in cup_reference_list:
-            if cup_reference[0] == 1:
-                cup_bbox.append(cup_reference[2])
+        basket = []
+        for reference_position in reference_positions:
+            if reference_position[0] == 1:
+                cup_bbox.append(reference_position[2])
+            elif reference_position[0] == 2:
+                basket.append(reference_position[2])
 
+        cup_bbox = cups_inside_basket(cup_bbox, basket)
         cup_bbox = sorted_bbox(cup_bbox)
         return cup_bbox, False
 
@@ -121,28 +149,35 @@ def get_reference_positions(args):
         print("File not found. A new reference file will be created.")
         return None, True
 
+
 def get_next_cup_position(objs, cup_bbox):
-        cups = []
-        for cup in objs:
-            if cup[0] == 1:
-                cups.append(cup[2])
+    cups = []
+    basket = []
+    for obj in objs:
+        if obj[0] == 1:
+            cups.append(obj[2])
+        elif obj[0] == 2:
+            basket.append(obj[2])
 
-        cup_list = []
-        if len(cups) > 0:
-            for cup in cups:
-                cup_list.append(list(cup))
-            cup_list = sorted_bbox(cup_list)
+    cups = cups_inside_basket(cups, basket)
 
-            pos_list = []
-            for cup in cup_list:
-                pos = centerIsInside(cup, cup_bbox)
-                pos_list.append(pos)
-            positive_values = [x for x in pos_list if x >= 0]
-            if len(positive_values) > 0:
-                minimum_positive = min(positive_values)
-        else:
-            minimum_positive = -1
-        return minimum_positive
+    cup_list = []
+    if len(cups) > 0:
+        for cup in cups:
+            cup_list.append(list(cup))
+        cup_list = sorted_bbox(cup_list)
+
+        pos_list = []
+        for cup in cup_list:
+            pos = center_inside(cup, cup_bbox)
+            pos_list.append(pos)
+        positive_values = [x for x in pos_list if x >= 0]
+        if len(positive_values) > 0:
+            minimum_positive = min(positive_values)
+    else:
+        minimum_positive = -1
+    return minimum_positive
+
 
 # Callback functions for connection and message events
 def on_connect(client, userdata, flags, rc):
@@ -235,15 +270,14 @@ def main():
         ]
         # print(" ".join(text_lines))
 
-        #if args.init == True and len(objs) > 16:
-        if len(objs) > 16:
+        if args.init == True and len(objs) > 16:
             print("Write new reference ...")
             jsonObjs = json.dumps(objs)
             with open(
                 "/home/mendel/cinito_vision/cup_positions.json", "w", encoding="utf-8"
             ) as f:
                 json.dump(jsonObjs, f, ensure_ascii=False, indent=4)
-        
+
         # cup_bbox, args.init = get_reference_positions(args)
 
         minimum_positive = get_next_cup_position(objs, cup_bbox)
