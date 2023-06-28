@@ -235,7 +235,9 @@ def main():
         ]
         # print(" ".join(text_lines))
 
-        if args.init == True and len(objs) > 16:
+        # if args.init == True and len(objs) > 16:
+        if len(objs) > 16:
+            print("Write new reference ...")
             jsonObjs = json.dumps(objs)
             with open(
                 "/home/mendel/cinito_vision/cup_positions.json", "w", encoding="utf-8"
