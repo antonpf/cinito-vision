@@ -183,7 +183,7 @@ def main():
         help="number of categories with highest score to display",
     )
     parser.add_argument(
-        "--threshold", type=float, default=0.80, help="classifier score threshold"
+        "--threshold", type=float, default=0.90, help="classifier score threshold"
     )
     parser.add_argument(
         "--videosrc", help="Which video source to use. ", default="/dev/video0"
@@ -235,8 +235,8 @@ def main():
         ]
         # print(" ".join(text_lines))
 
-        if args.init == True and len(objs) > 16:
-        # if len(objs) > 16:
+        #if args.init == True and len(objs) > 16:
+        if len(objs) > 16:
             print("Write new reference ...")
             jsonObjs = json.dumps(objs)
             with open(
