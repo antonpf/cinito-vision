@@ -103,9 +103,9 @@ def cups_inside_basket(cups, basket):
     cups_in_basket = []
     if len(cups) > 0:
         for cup in cups:
-            print("Basket", basket)
+            print("Basket", basket[0])
             print("cups", cup)
-            if is_bbox_inside(cup, basket):
+            if is_bbox_inside(cup, basket[0]):
                 cups_in_basket.append(cup)
             break
     return cups_in_basket
@@ -159,7 +159,7 @@ def get_next_cup_position(objs, cup_bbox):
         elif obj[0] == 2:
             basket.append(obj[2])
 
-    cups = cups_inside_basket(cups, basket[0])
+    cups = cups_inside_basket(cups, basket)
 
     cup_list = []
     if len(cups) > 0:
