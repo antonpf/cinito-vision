@@ -274,8 +274,27 @@ def main():
         # print(" ".join(text_lines))
 
         if args.init == True and len(objs) > 16:
+            cups = []
+            basket = []
+            for obj in objs:
+                if obj[0] == 1:
+                    cups.append(obj[2])
+                elif obj[0] == 2:
+                    basket.append(obj[2])
+            
+            print("Detected Cups: ", len(cups))
+            print("Detected Basket: ", len(basket))
+            
+            cups_in_basket = []
+            for obj in objs:
+                if obj[0] == 1:
+                    cup = obj[2]
+                    if is_bbox_inside(cup, basket[0]):
+                        cups_in_basket.append(obj)
+
+            print("Cups in basket: ", len(cups_in_basket))
             print("Write new reference ...")
-            jsonObjs = json.dumps(objs)
+            jsonObjs = json.dumps(cups_in_basket)
             with open(
                 "/home/mendel/cinito_vision/cup_positions.json", "w", encoding="utf-8"
             ) as f:
