@@ -174,6 +174,8 @@ def get_next_cup_position(objs, cup_bbox):
         positive_values = [x for x in pos_list if x >= 0]
         if len(positive_values) > 0:
             return min(positive_values)
+        else:
+            return -1
     else:
         return -1
 
