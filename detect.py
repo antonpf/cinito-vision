@@ -100,6 +100,9 @@ def is_bbox_inside(bbox1, bbox2):
 
 
 def cups_inside_basket(cups, basket):
+    print("Basket", basket)
+    print("cups", cups)
+    
     cups_in_basket = []
     for cup in cups:
         if is_bbox_inside(cup, basket):
