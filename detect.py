@@ -140,7 +140,8 @@ def get_reference_positions(args):
                 cup_bbox.append(reference_position[2])
             elif reference_position[0] == 2:
                 basket.append(reference_position[2])
-
+        print("Objs Number: ", len(cup_bbox))
+        print("Basket Number: ", len(basket))
         cup_bbox = cups_inside_basket(cup_bbox, basket)
         cup_bbox = sorted_bbox(cup_bbox)
         return cup_bbox, False
