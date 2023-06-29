@@ -107,7 +107,6 @@ def cups_inside_basket(cups, basket):
             print("cups", cup)
             if is_bbox_inside(cup, basket[0]):
                 cups_in_basket.append(cup)
-            break
     return cups_in_basket
 
 
