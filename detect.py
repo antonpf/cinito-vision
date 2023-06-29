@@ -173,10 +173,9 @@ def get_next_cup_position(objs, cup_bbox):
             pos_list.append(pos)
         positive_values = [x for x in pos_list if x >= 0]
         if len(positive_values) > 0:
-            minimum_positive = min(positive_values)
+            return min(positive_values)
     else:
-        minimum_positive = -1
-    return minimum_positive
+        return -1
 
 
 # Callback functions for connection and message events
