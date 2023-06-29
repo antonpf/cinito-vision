@@ -158,6 +158,9 @@ def get_next_cup_position(objs, cup_bbox):
             cups.append(obj[2])
         elif obj[0] == 2:
             basket.append(obj[2])
+    
+    print("Detected Cups: ", len(cups))
+    print("Detected Basket: ", len(basket))
 
     cups = cups_inside_basket(cups, basket)
 
