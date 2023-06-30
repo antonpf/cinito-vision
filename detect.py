@@ -87,13 +87,18 @@ def is_bbox_inside(bbox1, bbox2):
     # bbox1: [x1, y1, x2, y2] - coordinates of the first bounding box
     # bbox2: [x1, y1, x2, y2] - coordinates of the second bounding box
 
+    c_xcenter = (bbox1[0] + bbox1[2]) / 2
+    c_ycenter = (bbox1[1] + bbox1[3]) / 2
+    h_xmin = bbox2[0]
+    h_ymin = bbox2[1]
+    h_xmax = bbox2[2]
+    h_ymax = bbox2[3]
+
     # Check if the x and y coordinates of bbox1 are within the range of bbox2
-    if (
-        bbox1[0] >= bbox2[0]
-        and bbox1[1] >= bbox2[1]
-        and bbox1[2] <= bbox2[2]
-        and bbox1[3] <= bbox2[3]
-    ):
+    in_range_along_x = c_xcenter < h_xmax and h_xmin < c_xcenter
+    in_range_along_y = c_ycenter < h_ymax and h_ymin < c_ycenter
+    
+    if in_range_along_x and in_range_along_y:
         return True
     else:
         return False
