@@ -108,8 +108,6 @@ def cups_inside_basket(cups, basket):
     cups_in_basket = []
     if len(cups) > 0:
         for cup in cups:
-            print("Basket", basket[0])
-            print("cups", cup)
             if is_bbox_inside(cup, basket[0]):
                 cups_in_basket.append(cup)
     return cups_in_basket
@@ -162,9 +160,6 @@ def get_next_cup_position(objs, cup_bbox):
             cups.append(obj[2])
         elif obj[0] == 2:
             basket.append(obj[2])
-    
-    print("Detected Cups: ", len(cups))
-    print("Detected Basket: ", len(basket))
 
     cup_list = []
     if len(cups) > 0 and len(basket) > 0:
@@ -179,11 +174,11 @@ def get_next_cup_position(objs, cup_bbox):
             pos_list.append(pos)
         positive_values = [x for x in pos_list if x >= 0]
         if len(positive_values) > 0:
-            return min(positive_values)
+            return min(positive_values), len(cups)
         else:
-            return -1
+            return -1, len(cups)
     else:
-        return -1
+        return -1, len(cups)
 
 
 # Callback functions for connection and message events
@@ -307,14 +302,14 @@ def main():
 
         # cup_bbox, args.init = get_reference_positions(args)
 
-        minimum_positive = get_next_cup_position(objs, cup_bbox)
+        minimum_positive, cups_in_basket = get_next_cup_position(objs, cup_bbox)
         print("Next position: ", minimum_positive)
 
         DATA = struct.pack("i", minimum_positive)
         DATA = bytearray(DATA)
         client.publish(TOPIC, DATA, qos=QOS)
         client.publish(TOPIC_INT, minimum_positive, qos=QOS)
-        client.publish(TOPIC_COUNT, (len(objs) - 1), qos=QOS)
+        client.publish(TOPIC_COUNT, cups_in_basket, qos=QOS)
         time.sleep(5)
         return generate_svg(src_size, inference_box, objs, labels, text_lines)
 
