@@ -273,7 +273,8 @@ def main():
         ]
         # print(" ".join(text_lines))
 
-        if args.init == True and len(objs) > 16:
+        # if args.init == True and len(objs) > 16:
+        if len(objs) > 16:
             cups = []
             basket = []
             for obj in objs:
