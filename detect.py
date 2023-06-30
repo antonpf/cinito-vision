@@ -303,7 +303,7 @@ def main():
         # cup_bbox, args.init = get_reference_positions(args)
 
         minimum_positive, cups_in_basket = get_next_cup_position(objs, cup_bbox)
-        print("Next position: ", minimum_positive)
+        # print("Next position: ", minimum_positive)
 
         DATA = struct.pack("i", minimum_positive)
         DATA = bytearray(DATA)
