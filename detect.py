@@ -302,7 +302,7 @@ def main():
             print("Write new reference ...")
             jsonObjs = json.dumps(cups_in_basket)
             with open(
-                "/home/mendel/cinito_vision/cup_positions.json", "w", encoding="utf-8"
+                "/home/mendel/cinito-vision/resources/cup_positions.json", "w", encoding="utf-8"
             ) as f:
                 json.dump(jsonObjs, f, ensure_ascii=False, indent=4)
 
