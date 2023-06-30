@@ -166,10 +166,9 @@ def get_next_cup_position(objs, cup_bbox):
     print("Detected Cups: ", len(cups))
     print("Detected Basket: ", len(basket))
 
-    cups = cups_inside_basket(cups, basket)
-
     cup_list = []
     if len(cups) > 0 and len(basket) > 0:
+        cups = cups_inside_basket(cups, basket)
         for cup in cups:
             cup_list.append(list(cup))
         cup_list = sorted_bbox(cup_list)
