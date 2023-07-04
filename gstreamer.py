@@ -145,11 +145,13 @@ class GstPipeline:
             buffer_size = gstbuffer.get_size()
             data = gstbuffer.extract_dup(0, buffer_size)
 
-            # Extract the channel information from the Caps object
+            # Extract the width and height from the Caps object
             structure = caps.get_structure(0)
-            width = structure.get_int('width')
-            height = structure.get_int('height')
-            channels = structure.get_int('channels')
+            width = structure.get_value('width').get_int()
+            height = structure.get_value('height').get_int()
+
+            # Extract the channel information from the Caps object
+            channels = structure.get_value('channels').get_int()
 
             # Create an image object from the numpy array
             image = np.frombuffer(data, dtype=np.uint8).reshape((height, width, channels))
