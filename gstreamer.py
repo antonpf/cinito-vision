@@ -146,6 +146,8 @@ class GstPipeline:
             data = gstbuffer.extract_dup(0, buffer_size)
 
             # Extract the channel information from the Caps object
+            width = structure.get_int('width')
+            height = structure.get_int('height')
             structure = caps.get_structure(0)
             channels = structure.get_int('channels')
 
