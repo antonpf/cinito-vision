@@ -321,7 +321,7 @@ def main():
         # Create an image object from the numpy array
         width = CAM_W
         height = CAM_H
-        channels = 3
+        channels = input_tensor.get_n_channels()
         image = np.frombuffer(data, dtype=np.uint8).reshape((height, width, channels))
 
         time.sleep(5)
