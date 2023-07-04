@@ -147,8 +147,8 @@ class GstPipeline:
 
             # Extract the width and height from the Caps object
             structure = caps.get_structure(0)
-            width = structure.get_value('width').get_int()
-            height = structure.get_value('height').get_int()
+            width = structure.get_value('width')
+            height = structure.get_value('height')
 
             # Extract the channel information from the Caps object
             channels = structure.get_value('channels').get_int()
