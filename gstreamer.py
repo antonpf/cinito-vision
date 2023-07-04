@@ -151,7 +151,7 @@ class GstPipeline:
             height = structure.get_value('height')
 
             # Extract the channel information from the Caps object
-            channels = structure.get_value('channels').get_int()
+            channels = structure.get_value('channels')
             
             print("Channels: ", channels)
 
