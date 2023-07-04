@@ -152,8 +152,6 @@ class GstPipeline:
             channels = structure.get_int('channels')
 
             # Create an image object from the numpy array
-            width = gstbuffer.get_width()
-            height = gstbuffer.get_height()
             image = np.frombuffer(data, dtype=np.uint8).reshape((height, width, channels))
 
             print("Channels: ", channels)
