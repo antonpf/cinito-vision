@@ -318,18 +318,18 @@ def main():
         buffer_size = input_tensor.get_size()
         data = input_tensor.extract_dup(0, buffer_size)
 
-        # # Retrieve the Caps object associated with the buffer
-        # caps = input_tensor.get_caps()
+        # Retrieve the Caps object associated with the buffer
+        caps = input_tensor.get_caps()
 
-        # # Extract the channel information from the Caps object
-        # structure = caps.get_structure(0)
-        # channels = structure.get_int('channels')
+        # Extract the channel information from the Caps object
+        structure = caps.get_structure(0)
+        channels = structure.get_int('channels')
 
-        # # Create an image object from the numpy array
-        # width = CAM_W
-        # height = CAM_H
-        # channels = input_tensor.get_n_channels()
-        # image = np.frombuffer(data, dtype=np.uint8).reshape((height, width, channels))
+        # Create an image object from the numpy array
+        width = CAM_W
+        height = CAM_H
+        channels = input_tensor.get_n_channels()
+        image = np.frombuffer(data, dtype=np.uint8).reshape((height, width, 4))
 
         time.sleep(5)
         return generate_svg(src_size, inference_box, objs, labels, text_lines)
