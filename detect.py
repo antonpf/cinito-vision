@@ -7,6 +7,7 @@ import json
 import operator
 import paho.mqtt.client as mqtt
 import struct
+import numpy as np
 
 from gi.repository import GLib, GObject, Gst, GstBase
 from PIL import Image
@@ -316,6 +317,12 @@ def main():
         # Convert the GStreamer buffer to a numpy array
         buffer_size = input_tensor.get_size()
         data = input_tensor.extract_dup(0, buffer_size)
+
+        # Create an image object from the numpy array
+        width = input_tensor.get_width()
+        height = input_tensor.get_height()
+        channels = input_tensor.get_n_channels()
+        image = np.frombuffer(data, dtype=np.uint8).reshape((height, width, channels))
 
         time.sleep(5)
         return generate_svg(src_size, inference_box, objs, labels, text_lines)
