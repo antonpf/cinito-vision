@@ -149,7 +149,7 @@ class GstPipeline:
                 print("Width: ", width)
                 print("Height: ", height)
                 img = Image.frombytes('RGB', (width, height), mapinfo.data, 'raw')
-                img.save("/home/mendel/cinito-vision/test.jpg")
+                img.save("/mnt/test.jpg")
                 img.close()
                 gstbuffer.unmap(mapinfo)
 
