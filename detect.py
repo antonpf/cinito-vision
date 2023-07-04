@@ -21,6 +21,7 @@ from pycoral.utils.edgetpu import run_inference
 TOPIC = "becherlager"
 TOPIC_INT = "cupholder"
 TOPIC_COUNT = "cupholder_count"
+DATA_LAST_WILL = bytearray(struct.pack("i", -1))
 BROKER_ADRESS = "172.19.12.128"
 PORT = 1883
 QOS = 1
@@ -255,8 +256,8 @@ def main():
     # Set up the callback functions
     client.on_connect = on_connect
     client.on_disconnect = on_disconnect
-
-    client.will_set(TOPIC, payload=-1, qos=QOS, retain=True)
+    
+    client.will_set(TOPIC, payload=DATA_LAST_WILL, qos=QOS, retain=True)
     client.connect(BROKER_ADRESS, PORT)
 
     def user_callback(input_tensor, src_size, inference_box):
