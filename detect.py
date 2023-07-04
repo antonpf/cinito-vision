@@ -311,6 +311,12 @@ def main():
         client.publish(TOPIC, DATA, qos=QOS)
         client.publish(TOPIC_INT, minimum_positive, qos=QOS)
         client.publish(TOPIC_COUNT, cups_in_basket, qos=QOS)
+
+        # Sve image
+        # Convert the GStreamer buffer to a numpy array
+        buffer_size = input_tensor.get_size()
+        data = input_tensor.extract_dup(0, buffer_size)
+
         time.sleep(5)
         return generate_svg(src_size, inference_box, objs, labels, text_lines)
 
