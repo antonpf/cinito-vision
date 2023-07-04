@@ -14,7 +14,7 @@
 
 import sys
 import threading
-
+import numpy as np
 import gi
 
 gi.require_version("Gst", "1.0")
@@ -148,6 +148,12 @@ class GstPipeline:
             # Extract the channel information from the Caps object
             structure = caps.get_structure(0)
             channels = structure.get_int('channels')
+
+            # Create an image object from the numpy array
+            width = gstbuffer.get_width()
+            height = gstbuffer.get_height()
+            image = np.frombuffer(data, dtype=np.uint8).reshape((height, width, channels))
+
             print("Channels: ", channels)
 
             svg = self.user_function(gstbuffer, self.src_size, self.get_box())
