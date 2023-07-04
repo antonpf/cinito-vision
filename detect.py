@@ -313,23 +313,24 @@ def main():
         client.publish(TOPIC_INT, minimum_positive, qos=QOS)
         client.publish(TOPIC_COUNT, cups_in_basket, qos=QOS)
 
-        # Sve image
-        # Extract the raw data from the buffer
-        buffer_size = input_tensor.get_size()
-        data = input_tensor.extract_dup(0, buffer_size)
+        # Save image
+        result, mapinfo = input_tensor.map(Gst.MapFlags.READ)
+        # # Extract the raw data from the buffer
+        # buffer_size = input_tensor.get_size()
+        # data = input_tensor.extract_dup(0, buffer_size)
 
-        # Convert the data to a numpy array
-        array = np.frombuffer(data, dtype=np.uint8)
+        # # Convert the data to a numpy array
+        # array = np.frombuffer(data, dtype=np.uint8)
 
-        # Define the image dimensions
-        width = CAM_W
-        height = CAM_H
+        # # Define the image dimensions
+        # width = 2592
+        # height = 1944
 
-        # Reshape the array based on the image dimensions
-        array = array.reshape((height, width, -1))
+        # # Reshape the array based on the image dimensions
+        # array = array.reshape((height, width, -1))
 
-        # Create an Image object from the array
-        image = Image.fromarray(array)
+        # # Create an Image object from the array
+        # image = Image.fromarray(array)
 
         time.sleep(5)
         return generate_svg(src_size, inference_box, objs, labels, text_lines)
