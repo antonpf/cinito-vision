@@ -319,9 +319,9 @@ def main():
         data = input_tensor.extract_dup(0, buffer_size)
 
         # Create an image object from the numpy array
-        width = input_tensor.get_width()
-        height = input_tensor.get_height()
-        channels = input_tensor.get_n_channels()
+        width = CAM_W
+        height = CAM_H
+        channels = 3
         image = np.frombuffer(data, dtype=np.uint8).reshape((height, width, channels))
 
         time.sleep(5)
