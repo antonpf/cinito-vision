@@ -315,6 +315,14 @@ def main():
 
         # Save image
         result, mapinfo = input_tensor.map(Gst.MapFlags.READ)
+        if result:
+            print("Saving image ...")
+            caps = input_tensor.get_caps()
+            width = caps.get_structure(0).get_value('width')
+            height = caps.get_structure(0).get_value('height')
+            print("Width: ", width)
+            print("Height: ", height)
+
         # # Extract the raw data from the buffer
         # buffer_size = input_tensor.get_size()
         # data = input_tensor.extract_dup(0, buffer_size)
