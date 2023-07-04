@@ -149,6 +149,9 @@ class GstPipeline:
                 print("Width: ", width)
                 print("Height: ", height)
                 img = Image.frombytes('RGB', (width, height), mapinfo.data, 'raw')
+                img.save("/home/mendel/cinito-vision/test.jpg")
+                img.close()
+                gstbuffer.unmap(mapinfo)
 
             svg = self.user_function(gstbuffer, self.src_size, self.get_box())
             if svg:
