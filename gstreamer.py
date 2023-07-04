@@ -152,11 +152,12 @@ class GstPipeline:
 
             # Extract the channel information from the Caps object
             channels = structure.get_value('channels').get_int()
+            
+            print("Channels: ", channels)
 
             # Create an image object from the numpy array
-            image = np.frombuffer(data, dtype=np.uint8).reshape((height, width, channels))
+            image = np.frombuffer(data, dtype=np.uint8).reshape((height, width, 0))
 
-            print("Channels: ", channels)
 
             svg = self.user_function(gstbuffer, self.src_size, self.get_box())
             if svg:
