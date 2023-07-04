@@ -16,6 +16,8 @@ import sys
 import threading
 import gi
 
+from PIL import Image
+
 gi.require_version("Gst", "1.0")
 gi.require_version("GstBase", "1.0")
 gi.require_version("Gtk", "3.0")
@@ -146,6 +148,7 @@ class GstPipeline:
                 height = caps.get_structure(0).get_value('height')
                 print("Width: ", width)
                 print("Height: ", height)
+                img = Image.frombytes('RGB', (width, height), mapinfo.data, 'raw')
 
             svg = self.user_function(gstbuffer, self.src_size, self.get_box())
             if svg:
