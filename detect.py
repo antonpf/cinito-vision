@@ -318,6 +318,13 @@ def main():
         buffer_size = input_tensor.get_size()
         data = input_tensor.extract_dup(0, buffer_size)
 
+        # Retrieve the Caps object associated with the buffer
+        caps = input_tensor.get_caps()
+
+        # Extract the channel information from the Caps object
+        structure = caps.get_structure(0)
+        channels = structure.get_int('channels')
+
         # Create an image object from the numpy array
         width = CAM_W
         height = CAM_H
