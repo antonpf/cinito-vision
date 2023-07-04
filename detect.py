@@ -321,6 +321,13 @@ def main():
         # Convert the data to a numpy array
         array = np.frombuffer(data, dtype=np.uint8)
 
+        # Define the image dimensions
+        width = CAM_W
+        height = CAM_H
+
+        # Reshape the array based on the image dimensions
+        array = array.reshape((height, width, -1))
+
         # Create an Image object from the array
         image = Image.fromarray(array)
 
