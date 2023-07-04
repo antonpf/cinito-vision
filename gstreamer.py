@@ -136,6 +136,17 @@ class GstPipeline:
 
             # Passing Gst.Buffer as input tensor avoids 2 copies of it.
             gstbuffer = gstsample.get_buffer()
+
+            # Save image
+            result, mapinfo = gstbuffer.map(Gst.MapFlags.READ)
+            if result:
+                print("Saving image ...")
+                caps = gstsample.get_caps()
+                width = caps.get_structure(0).get_value('width')
+                height = caps.get_structure(0).get_value('height')
+                print("Width: ", width)
+                print("Height: ", height)
+
             svg = self.user_function(gstbuffer, self.src_size, self.get_box())
             if svg:
                 if self.overlay:
