@@ -321,6 +321,9 @@ def main():
         # Convert the data to a numpy array
         array = np.frombuffer(data, dtype=np.uint8)
 
+        # Create an Image object from the array
+        image = Image.fromarray(array)
+
         time.sleep(5)
         return generate_svg(src_size, inference_box, objs, labels, text_lines)
 
