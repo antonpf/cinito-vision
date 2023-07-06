@@ -222,7 +222,7 @@ def main():
         help="number of categories with highest score to display",
     )
     parser.add_argument(
-        "--threshold", type=float, default=0.75, help="classifier score threshold"
+        "--threshold", type=float, default=0.55, help="classifier score threshold"
     )
     parser.add_argument(
         "--videosrc", help="Which video source to use. ", default="/dev/video0"
